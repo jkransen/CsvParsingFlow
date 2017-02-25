@@ -3,7 +3,7 @@ package nl.kransen.mapheadtail
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 
-class HeadTailMap[A, B](f: (A, A) => B) extends GraphStage[FlowShape[A, B]] {
+class HeadTailMap[A, C, B](convertLine: A => C)(combine: (C, C) => B) extends GraphStage[FlowShape[A, B]] {
 
   val in = Inlet[A]("Map.in")
   val out = Outlet[B]("Map.out")
@@ -12,14 +12,15 @@ class HeadTailMap[A, B](f: (A, A) => B) extends GraphStage[FlowShape[A, B]] {
 
   override def createLogic(attr: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) {
-      var header: Option[A] = None
+      var header: Option[C] = None
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
+          val line = convertLine(grab(in))
           header match {
             case Some(hdr) =>
-              push(out, f(hdr, grab(in)))
+              push(out, combine(hdr, line))
             case None =>
-              header = Some(grab(in))
+              header = Some(line)
               pull(in)
           }
         }
