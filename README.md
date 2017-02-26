@@ -9,3 +9,21 @@ CSV files are perfect matches for Reactive Streams, but the most basic use case 
 ## Solution
 
 This Akka Stream component, a Flow component with one input and one output, is aimed to solve these issues. The first element is swallowed, and joined with all the subsequent elements. The typical use case is CSV files, as stated, but the pattern itself is free from CSV logic and can easily be applied to your own use case. 
+
+## Usage
+
+    val csv = List(""""first","second","third"""", 
+                   """"aap","noot","mies"""",
+                   """"wim","zus","jet"""")
+
+    val flow = Source[String](csv).via(CsvZippingMap.create())
+
+    flow.runForeach(map => println(map))
+
+This will result in:
+
+    Map(first -> aap, second -> noot, third -> mies)
+    Map(first -> wim, second -> zus, third -> jet)
+
+If you want another data structure, like a Case Class, this should be 
+easy to hook into the code.
