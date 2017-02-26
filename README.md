@@ -25,5 +25,13 @@ This will result in:
     Map(first -> aap, second -> noot, third -> mies)
     Map(first -> wim, second -> zus, third -> jet)
 
+## Customization
+
 If you want another data structure, like a Case Class, this should be 
-easy to hook into the code.
+easy to hook into the code. Just look at the CsvZippingMap and replace it 
+with your own implementation.
+
+For now I assumed that the header element is always the same type as subsequent elements (e.g. String),
+but even this should be easy to change, by adding an additional type (e.g. H) to the HeadTailMap,
+and use it for the header.
+
